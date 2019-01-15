@@ -1,0 +1,165 @@
+//  ViewController2.swift
+//  Hearts and Crosses v2
+//  Created by Lucy Sheppard on 08/01/2019.
+//  Copyright © 2019 Lucy Sheppard. All rights reserved.
+
+import UIKit
+import AVFoundation
+
+class ViewController2: UIViewController
+{
+
+// Set active player
+var player = 1
+var player1Name:String!
+var player2Name:String!
+
+// Set game state
+var state = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+// Create array for all winning combinations
+let winningCombos = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+
+// Set variable to set the game to active
+var active = true
+var complete = false
+
+// Import label
+@IBOutlet weak var label: UILabel!
+
+// import and style options button
+@IBOutlet weak var optionsBtn: UIButton! {
+didSet {
+optionsBtn.layer.cornerRadius = 4
+}
+}
+// Import name labels
+@IBOutlet weak var player1name: UILabel!
+@IBOutlet weak var player2name: UILabel!
+
+override func viewDidLoad() {
+super.viewDidLoad()
+
+// Display player names
+player1name.text = player1Name
+player2name.text = player2Name
+}
+
+// Closes modal view controller
+@IBAction func optionsTapped(_ sender: Any) {
+dismiss(animated: true, completion: nil)
+}
+
+@IBAction func action(_ sender: AnyObject)
+{
+// Checks if game is complete and if it is you can't continue playing
+// Guard (If conditions aren't met) (The Swift Guy, 2016)
+guard !complete else { return }
+
+if (state[sender.tag-1] == 0)
+{
+state[sender.tag-1] = player
+if (player == 1)
+{
+// Set the image to heart
+sender.setImage(UIImage(named: "heart.png"), for: UIControl.State())
+player = 2
+}
+else
+{
+// Set the image to cross
+sender.setImage(UIImage(named: "cross.png"), for: UIControl.State())
+player = 1
+}
+}
+
+// Look through all combinations to see if player has won (The Swift Guy, 2016)
+for i in winningCombos
+{
+if state[i[0]] != 0 && state[i[0]] == state[i[1]] && state[i[1]] == state[i[2]]
+{
+// Pause game
+active = false
+complete = true
+
+// Check to see if the game has been won
+if state[i[0]] == 1 {
+label.text = "\(player1Name!) has won"
+} else {
+label.text = "\(player2Name!) has won"
+}
+// Create alert for when the player has won
+let alert = UIAlertController(title: "Winner!", message: "\(label.text!) has won the game!", preferredStyle: .alert)
+let alertAction = UIAlertAction(title: "Continue", style: .default, handler: nil)
+alert.addAction(alertAction)
+// Create reset action
+let resetAction = UIAlertAction(title: "Reset", style: .default) { (completed) in
+self.reset(sender)
+}
+alert.addAction(resetAction)
+
+self.present(alert, animated: true)
+
+
+// Show label
+label.isHidden = false
+}
+}
+
+// Check for a 0 (Game is a draw)
+active = false
+for i in state
+{
+if i == 0
+{
+active = true
+break
+}
+}
+if active == false
+{
+label.text = "Draw"
+// Create alert for when its a draw
+let alert = UIAlertController(title: "Game over!", message: "It was a draw!", preferredStyle: .alert)
+let alertAction = UIAlertAction(title: "Continue", style: .default, handler: nil)
+alert.addAction(alertAction)
+// Create reset action
+let resetAction = UIAlertAction(title: "Reset", style: .default) { (completed) in
+self.reset(sender)
+}
+alert.addAction(resetAction)
+
+self.present(alert, animated: true)
+
+label.isHidden = false
+}
+
+}
+
+@IBAction func reset(_ sender: Any) {
+//Reset board
+state = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+active = true
+complete = false
+player = 1
+label.isHidden = true
+for i in 1...9
+{
+let button = view.viewWithTag(i) as! UIButton
+button.setImage(nil, for: UIControl.State())
+}
+
+}
+
+@IBOutlet weak var reset: UIButton!
+}
+
+
+
+/* References
+Developer.apple.com. (2019). animate(withDuration:animations:) - UIView | Apple Developer Documentation. [online] Available at: https://developer.apple.com/documentation/uikit/uiview/1622418-animate [Accessed 12 Jan. 2019].
+Inc., A. (n.d.). The Basics — The Swift Programming Language (Swift 4.2). [online] Docs.swift.org. Available at: https://docs.swift.org/swift-book/LanguageGuide/TheBasics.html [Accessed 10 Dec. 2018].
+The Swift Guy. (2016). How To Make A Tic Tac Toe Game In Xcode 8 (Swift 3.0) - Part 1/2. [Online Video]. 12 October 2016. Available from: How To Make A Tic Tac Toe Game In Xcode 8 (Swift 3.0) - Part 1/2. [Accessed: 9 December 2018].
+The Swift Guy. (2016). How To Make A Tic Tac Toe Game In Xcode 8 (Swift 3.0) - Part 2/2. [Online Video]. 13 October 2016. Available from: How To Make A Tic Tac Toe Game In Xcode 8 (Swift 3.0) - Part 2/2. [Accessed: 9 December 2018].
+Peytchev, E. (n.d.). Lecture 4 - Application Programming Basics.
+*/
